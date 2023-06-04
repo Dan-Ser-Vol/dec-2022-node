@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-const fileService = require('./services/serviceDB.js')
+const fileService = require('../services/serviceDB.js')
 
 
 app.use(express.json())
