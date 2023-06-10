@@ -36,7 +36,7 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const user = await userService.findById(req.params.id);
+      const user = await userService.findById(req.params.userId);
       return res.status(200).json({ user, message: "user founded" });
     } catch (e) {
       next(e);
@@ -50,11 +50,11 @@ class UserController {
   ): Promise<Response<IUser>> {
     try {
       const { error, value } = UserValidator.update.validate(req.body);
-      const { id } = req.params;
+      const { userId } = req.params;
       if (error) {
         throw new ApiError(error.message, 400);
       }
-      const updateUser = await userService.updateById(id, value);
+      const updateUser = await userService.updateById(userId, value);
       return res.status(200).json({ updateUser, message: "user updated" });
     } catch (e) {
       next(e);
@@ -66,9 +66,9 @@ class UserController {
     next: NextFunction
   ): Promise<Response<void>> {
     try {
-      const { id } = req.params;
-      await userService.deleteById(id, req.body);
-      return res.status(200).json({ message: "user deleted" });
+      const { userId } = req.params;
+      await userService.deleteById(userId);
+      return res.status(204).json({ message: "user deleted" });
     } catch (e) {
       next(e);
     }

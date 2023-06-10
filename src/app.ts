@@ -17,5 +17,5 @@ app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(configs.PORT, () => {
   mongoose.connect(configs.DB_URL);
-  console.log(`server worked on port ${configs.PORT}`);
+  console.log(`server started on port ${configs.PORT}`);
 });

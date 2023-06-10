@@ -8,7 +8,7 @@ class UserMiddleware {
     try {
       const { error, value } = UserValidator.create.validate(req.body);
       if (error) {
-        throw new ApiError(error.message, 400);
+        next(new ApiError(error.message, 400));
       }
       req.res.locals = value;
       next();
@@ -16,8 +16,6 @@ class UserMiddleware {
       next(e);
     }
   }
-
-  // public async isMongoIdValid() {}
 }
 
 export const userMiddleware = new UserMiddleware();
