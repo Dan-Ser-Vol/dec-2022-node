@@ -4,18 +4,21 @@ import { regexConstants } from "../constants";
 import { EGenders } from "../enums/user.enum";
 
 export class UserValidator {
-  static firstName = Joi.string().min(3).max(30).trim();
-  static age = Joi.number().min(1).max(150);
+  static userName = Joi.string().min(3).max(10).trim();
+  static age = Joi.number().min(3).max(150);
   static gender = Joi.valid(...Object.values(EGenders));
   static email = Joi.string()
     .regex(regexConstants.EMAIL)
     .lowercase()
-    .trim()
-    .required();
-  static password = Joi.string().regex(regexConstants.PASSWORD).trim();
+    .required()
+    .trim();
+  static password = Joi.string()
+    .regex(regexConstants.PASSWORD)
+    .required()
+    .trim();
 
   static create = Joi.object({
-    name: this.firstName.required(),
+    name: this.userName.required(),
     age: this.age.required(),
     gender: this.gender.required(),
     email: this.email.required(),
@@ -23,8 +26,13 @@ export class UserValidator {
   });
 
   static update = Joi.object({
-    name: this.firstName,
+    name: this.userName,
     age: this.age,
     gender: this.gender,
+  });
+
+  static login = Joi.object({
+    email: this.email.required(),
+    password: this.password.required(),
   });
 }

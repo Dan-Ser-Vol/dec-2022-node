@@ -8,6 +8,10 @@ class UserService {
   }
 
   public async create(value: IUser): Promise<IUser> {
+    const existingUser = await User.findOne({ email: value.email });
+    if (existingUser) {
+      throw new ApiError("Такий користувач вже існує", 409);
+    }
     return await User.create(value);
   }
 
