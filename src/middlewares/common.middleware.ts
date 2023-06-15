@@ -18,6 +18,7 @@ class CommonMiddleware {
       }
     };
   }
+
   public isBodyValid(validator: ObjectSchema) {
     return (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -25,7 +26,7 @@ class CommonMiddleware {
         if (error) {
           return next(new ApiError(error.message, 400));
         }
-        req.res.locals = value;
+        req.body = value;
         next();
       } catch (e) {
         next(e);

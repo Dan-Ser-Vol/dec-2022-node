@@ -4,16 +4,9 @@ import { IUser } from "../types/user.type";
 
 class UserService {
   public async findAll(): Promise<IUser[]> {
-    return await User.find().select("-password");
+    return await User.find();
   }
 
-  public async create(value: IUser): Promise<IUser> {
-    const existingUser = await User.findOne({ email: value.email });
-    if (existingUser) {
-      throw new ApiError("Такий користувач вже існує", 409);
-    }
-    return await User.create(value);
-  }
 
   public async findById(id: string): Promise<IUser> {
     return await this.getOneByIdOrThrow(id);

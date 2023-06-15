@@ -1,19 +1,39 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ApiError } from "../errors";
-import { UserValidator } from "../validators/user.validator";
+import { User } from "../models/User.model";
+import { IUser } from "../types/user.type";
 
 class UserMiddleware {
-  public isCreateValid(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { error, value } = UserValidator.create.validate(req.body);
-      if (error) {
-        next(new ApiError(error.message, 400));
+  public findOneOrThrow(field: keyof IUser) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const user = await User.findOne({ [field]: req.body[field] });
+        if (user) {
+          throw new ApiError("User with this email already exist", 409);
+        }
+        req.res.locals.user = user;
+        next();
+      } catch (err) {
+        next(err);
       }
-      req.res.locals = value;
+    };
+  }
+
+  public async isUserExist(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
+        next(new ApiError("User not found", 422));
+      }
+      req.res.locals.user = user;
       next();
-    } catch (e) {
-      next(e);
+    } catch (err) {
+      next(err);
     }
   }
 }
