@@ -2,7 +2,7 @@ import { EEmailActions } from "../enums/email.enum";
 import { ApiError } from "../errors";
 import { Token } from "../models/Token.model";
 import { User } from "../models/User.model";
-import { ICredentials } from "../types/token.type";
+import { ICredentials, ITokenPair, ITokenPayload } from "../types/token.type";
 import { IUser } from "../types/user.type";
 import { emailService } from "./email.service";
 import { passwordService } from "./password.service";
@@ -22,12 +22,12 @@ class AuthService {
   }
 
   public async login(credentials: ICredentials, user: IUser) {
-    const watched = await passwordService.compare(
+    const isMatched = await passwordService.compare(
       credentials.password,
       user.password
     );
 
-    if (!watched) {
+    if (!isMatched) {
       throw new ApiError("invalid email or password", 401);
     }
 
@@ -39,6 +39,16 @@ class AuthService {
       ...tokenPair,
       _userId: user._id,
     });
+    return tokenPair;
+  }
+
+  public async refresh(oldTokenPair: ITokenPair, tokenPayload: ITokenPayload) {
+    const tokenPair = await tokenService.generateTokenPair(tokenPayload);
+    await Promise.all([
+      Token.create({ _userId: tokenPayload._id, ...tokenPair }),
+      Token.deleteOne({ refreshToken: oldTokenPair.refreshToken }),
+    ]);
+
     return tokenPair;
   }
 }

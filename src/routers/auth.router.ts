@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import { authController } from "../controllers/auth.controller";
 import { commonMiddleware } from "../middlewares";
+import { authMiddleware } from "../middlewares/auth.middleware";
 import { userMiddleware } from "../middlewares/user.middleware";
 import { UserValidator } from "../validators/user.validator";
 
@@ -19,6 +20,12 @@ router.post(
   commonMiddleware.isBodyValid(UserValidator.login),
   userMiddleware.isUserExist,
   authController.login
+);
+
+router.post(
+  "/refresh",
+  authMiddleware.checkRefreshToken,
+  authController.refresh
 );
 
 export const authRouter = router;
