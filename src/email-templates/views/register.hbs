@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Реєстрація</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 400px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .submit-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Привіт {{name}}</h1>
+<h2>Реєстрація</h2>
+<form>
+    <table>
+        <tr>
+            <th>ПІБ</th>
+            <td><input type="text" name="name" required></td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td><input type="email" name="email" required></td>
+        </tr>
+        <tr>
+            <th>Пароль</th>
+            <td><input type="password" name="password" required></td>
+        </tr>
+        <tr>
+            <th>Підтвердження паролю</th>
+            <td><input type="password" name="confirmPassword" required></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="submit-btn"><input type="submit" value="Зареєструватися"></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

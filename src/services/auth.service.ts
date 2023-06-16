@@ -1,8 +1,10 @@
+import { EEmailActions } from "../enums/email.enum";
 import { ApiError } from "../errors";
 import { Token } from "../models/Token.model";
 import { User } from "../models/User.model";
 import { ICredentials } from "../types/token.type";
 import { IUser } from "../types/user.type";
+import { emailService } from "./email.service";
 import { passwordService } from "./password.service";
 import { tokenService } from "./token.service";
 
@@ -10,7 +12,10 @@ class AuthService {
   public async register(data: IUser) {
     try {
       const hashPassword = await passwordService.hash(data.password);
-      return await User.create({ ...data, password: hashPassword });
+      await User.create({ ...data, password: hashPassword });
+      await emailService.sendMail(data.email, EEmailActions.REGISTER, {
+        name: data.name,
+      });
     } catch (err) {
       throw new ApiError(err.message, err.status);
     }
