@@ -45,7 +45,12 @@ export class UserValidator {
   });
 
   static login = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
+    email: this.email.required(),
+    password: this.password.required(),
+  });
+
+  static changePassword = Joi.object({
+    oldPassword: this.password.required(),
+    newPassword: this.password.required(),
   });
 }

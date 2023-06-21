@@ -1,5 +1,7 @@
+import { configs } from "../configs/config";
 import { EEmailActions } from "../enums/email.enum";
 import { ApiError } from "../errors";
+import { OldPassword } from "../models/OldPassword.model";
 import { Token } from "../models/Token.model";
 import { User } from "../models/User.model";
 import { ICredentials, ITokenPair, ITokenPayload } from "../types/token.type";
@@ -11,10 +13,15 @@ import { tokenService } from "./token.service";
 class AuthService {
   public async register(data: IUser) {
     try {
+      const { email, password } = data;
       const hashPassword = await passwordService.hash(data.password);
-      await User.create({ ...data, password: hashPassword });
-      await emailService.sendMail(data.email, EEmailActions.REGISTER, {
+      const user = await User.create({ ...data, password: hashPassword });
+      const actionToken = tokenService.generateActionToken({ email, password });
+      const activationLink = `${configs.API_URL}/auth/activate/${actionToken}`;
+      await user.updateOne({ activationLink: actionToken });
+      await emailService.sendMail(data.email, EEmailActions.ACTIVATED, {
         name: data.name,
+        link: activationLink,
       });
     } catch (err) {
       throw new ApiError(err.message, err.status);
@@ -50,6 +57,46 @@ class AuthService {
     ]);
 
     return tokenPair;
+  }
+
+  public async activate(activationLink: string): Promise<any> {
+    const user = await User.findOne({ activationLink });
+    if (!user) {
+      throw new ApiError("Invalid activation link", 404);
+    }
+    user.isActivated = true;
+    await user.save();
+  }
+
+  public async changePassword(
+    dto: { newPassword: string; oldPassword: string },
+    userId: string
+  ): Promise<void> {
+    try {
+      const oldPasswords = await OldPassword.find({ _userId: userId });
+      oldPasswords.map(async ({ password: hash }) => {
+        const isMatched = await passwordService.compare(dto.oldPassword, hash);
+        if (isMatched) {
+          throw new ApiError("Wrong old password", 400);
+        }
+      });
+
+      const user = await User.findById(userId).select("password");
+      const isMatched = await passwordService.compare(
+        dto.oldPassword,
+        user.password
+      );
+      if (!isMatched) {
+        throw new ApiError("old password is wrong", 404);
+      }
+      const newHash = await passwordService.hash(dto.oldPassword);
+      await Promise.all([
+        await OldPassword.create({ password: user.password, _userId: userId }),
+        await User.updateOne({ _id: userId }, { password: newHash }),
+      ]);
+    } catch (err) {
+      throw new ApiError(err.mesage, err.status);
+    }
   }
 }
 

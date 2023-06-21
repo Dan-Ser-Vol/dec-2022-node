@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { ETokenType } from "../enums/token-type.enum";
 import { ApiError } from "../errors";
 import { Token } from "../models/Token.model";
+import { User } from "../models/User.model";
 import { tokenService } from "../services/token.service";
 
 class AuthMiddleware {
@@ -17,14 +18,17 @@ class AuthMiddleware {
         next(new ApiError("No token!", 401));
       }
 
-      await tokenService.checkToken(accessToken, ETokenType.ACCESS);
+      const payload = await tokenService.checkToken(
+        accessToken,
+        ETokenType.ACCESS
+      );
 
       const entity = await Token.findOne({ accessToken });
       if (!entity) {
         next(new ApiError("No token!", 401));
       }
 
-      req.res.locals.token = entity;
+      req.res.locals.token = payload;
       next();
     } catch (err) {
       next(err);
@@ -42,7 +46,6 @@ class AuthMiddleware {
       }
 
       const payload = tokenService.checkToken(refreshToken, ETokenType.REFRESH);
-
       const entity = await Token.findOne({ refreshToken });
       if (!entity) {
         next(new ApiError("No token!", 401));
@@ -50,6 +53,29 @@ class AuthMiddleware {
 
       req.res.locals.oldTokenPair = entity;
       req.res.locals.tokenPayload = { name: payload.name, _id: payload._id };
+      next();
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async checkIsActivated(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const activationLink = req.params.link;
+      if (!activationLink) {
+        next(new ApiError("No activationLink!", 401));
+      }
+
+      const user = await User.findOne({ activationLink });
+      if (!user) {
+        next(new ApiError("This user no registration!", 401));
+      }
+
+      req.res.locals.user = user;
       next();
     } catch (err) {
       next(err);

@@ -9,4 +9,8 @@ export const allTemplates = {
     templateName: "register",
     subject: "Welcome to our school ",
   },
+  [EEmailActions.ACTIVATED]: {
+    templateName: "activated",
+    subject: "Please activated your account ",
+  },
 };

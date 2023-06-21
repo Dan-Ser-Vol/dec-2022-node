@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { configs } from "../configs/config";
 import { ETokenType } from "../enums/token-type.enum";
 import { ApiError } from "../errors";
-import { ITokenPair, ITokenPayload } from "../types/token.type";
+import { IActionToken, ITokenPair, ITokenPayload } from "../types/token.type";
 
 class TokenService {
   public generateTokenPair(payload: ITokenPayload): ITokenPair {
@@ -14,6 +14,12 @@ class TokenService {
       expiresIn: "30d",
     });
     return { accessToken, refreshToken };
+  }
+
+  public generateActionToken(payload: IActionToken): string {
+    return jwt.sign(payload, configs.JWT_ACCESS_SECRET, {
+      expiresIn: "10m",
+    });
   }
 
   public checkToken(token: string, type: ETokenType): ITokenPayload {
