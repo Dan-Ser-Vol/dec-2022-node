@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
+import { EActionTokenTypes } from "../enums/action-token-type.enum";
 import { ETokenType } from "../enums/token-type.enum";
 import { ApiError } from "../errors";
 import { Token } from "../models/Token.model";
@@ -28,7 +29,7 @@ class AuthMiddleware {
         next(new ApiError("No token!", 401));
       }
 
-      req.res.locals.token = payload;
+      req.res.locals.payload = payload;
       next();
     } catch (err) {
       next(err);
@@ -65,12 +66,12 @@ class AuthMiddleware {
     next: NextFunction
   ) {
     try {
-      const activationLink = req.params.link;
-      if (!activationLink) {
-        next(new ApiError("No activationLink!", 401));
+      const actionToken = req.params.token;
+      if (!actionToken) {
+        next(new ApiError("No activation Token!", 401));
       }
 
-      const user = await User.findOne({ activationLink });
+      const user = await User.findOne({ actionToken });
       if (!user) {
         next(new ApiError("This user no registration!", 401));
       }
@@ -80,6 +81,28 @@ class AuthMiddleware {
     } catch (err) {
       next(err);
     }
+  }
+  public checkActionToken(tokenType: EActionTokenTypes) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const actionToken = req.params.token;
+        if (!actionToken) {
+          throw new ApiError("Token is not provided", 400);
+        }
+
+        const jwtPayload = tokenService.checkActionToken(
+          actionToken,
+          tokenType
+        );
+
+        const tokenFromDb = await Token.findOne({ actionToken });
+
+        req.res.locals = { jwtPayload, tokenFromDb };
+        next();
+      } catch (err) {
+        next(new ApiError(err.message, err.status));
+      }
+    };
   }
 }
 

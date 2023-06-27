@@ -24,7 +24,6 @@ class AuthController {
   ): Promise<Response<ITokenPair>> {
     try {
       const user = req.res.locals.user;
-
       const tokenPair = await authService.login(req.body, user);
       return res.status(200).json({ ...tokenPair });
     } catch (err) {
@@ -54,7 +53,7 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<ITokenPair>> {
     try {
-      const { _id: userId } = req.res.locals.token as ITokenPayload;
+      const { _id: userId } = req.res.locals.payload as ITokenPayload;
       await authService.changePassword(req.body, userId);
       return res.status(201).json("password was changed");
     } catch (err) {
@@ -68,12 +67,42 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<any>> {
     try {
-      const activationLink = req.params.link;
-      await authService.activate(activationLink);
+      const { jwtPayload } = req.res.locals;
+      await authService.activate(jwtPayload);
       return res.status(201).json("Your account is activated");
     } catch (err) {
       next(err);
     }
+  }
+
+  public async forgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { email } = req.body;
+      const userId = res.locals.user._id;
+      await authService.forgotPassword(userId, email);
+      res.sendStatus(200).json("success");
+    } catch (e) {}
+  }
+
+  public async setForgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { password } = req.body;
+      const { jwtPayload } = req.res.locals;
+      await authService.setForgotPassword(
+        password,
+        jwtPayload._id,
+        req.params.token
+      );
+      res.sendStatus(200).json("success");
+    } catch (e) {}
   }
 }
 

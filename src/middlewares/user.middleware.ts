@@ -20,23 +20,25 @@ class UserMiddleware {
     };
   }
 
-  public async isUserExist(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const user = await User.findOne({ email: req.body.email }).select(
-        "password"
-      );
-      if (!user) {
-        next(new ApiError("User not found", 422));
+  public isUserExist<T>(field: keyof T) {
+    return async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<void> => {
+      try {
+        const user = await User.findOne({ [field]: req.body[field] }).select(
+          "password"
+        );
+        if (!user) {
+          next(new ApiError("User not found", 422));
+        }
+        req.res.locals.user = user;
+        next();
+      } catch (err) {
+        next(err);
       }
-      req.res.locals.user = user;
-      next();
-    } catch (err) {
-      next(err);
-    }
+    };
   }
 }
 
