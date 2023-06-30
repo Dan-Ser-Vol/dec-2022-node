@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userController = void 0;
 const errors_1 = require("../errors");
+const user_mapper_1 = require("../mappers/user.mapper");
 const user_service_1 = require("../services/user.service");
 const user_validator_1 = require("../validators/user.validator");
 class UserController {
@@ -42,6 +43,29 @@ class UserController {
             const { userId } = req.params;
             await user_service_1.userService.deleteById(userId);
             return res.status(204).json({ message: "user deleted" });
+        }
+        catch (e) {
+            next(e);
+        }
+    }
+    async uploadAvatar(req, res, next) {
+        try {
+            const { userId } = req.params;
+            const avatar = req.files.avatar;
+            const user = await user_service_1.userService.uploadAvatar(userId, avatar);
+            const response = user_mapper_1.userMapper.toResponse(user);
+            return res.status(201).json({ response, message: "avatar upload" });
+        }
+        catch (e) {
+            next(e);
+        }
+    }
+    async deleteAvatar(req, res, next) {
+        try {
+            const { userId } = req.params;
+            const user = await user_service_1.userService.deleteAvatar(userId);
+            const response = user_mapper_1.userMapper.toResponse(user);
+            return res.status(201).json({ response, message: "avatar was deleted" });
         }
         catch (e) {
             next(e);

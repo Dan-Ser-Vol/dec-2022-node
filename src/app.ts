@@ -9,6 +9,7 @@ import { cronRunner } from "./crons";
 import { ApiError } from "./errors";
 import { authRouter, userRouter } from "./routers";
 import * as swaggerJson from "./utils/swagger.json";
+import fileUpload from "express-fileupload";
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(
   })
 );
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

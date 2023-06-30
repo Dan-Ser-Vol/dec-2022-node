@@ -12,7 +12,7 @@ const errors_1 = require("../errors");
 class TokenService {
     generateTokenPair(payload) {
         const accessToken = jsonwebtoken_1.default.sign(payload, config_1.configs.JWT_ACCESS_SECRET, {
-            expiresIn: "10m",
+            expiresIn: "10h",
         });
         const refreshToken = jsonwebtoken_1.default.sign(payload, config_1.configs.JWT_REFRESH_SECRET, {
             expiresIn: "30d",

@@ -27,6 +27,8 @@ const userSchema = new Schema(
     password: { type: String, required: true },
     status: { type: String, default: EUserStatus.Inactive, enum: EUserStatus },
     activationToken: { type: String },
+
+    avatar: { type: String, required: false },
   },
   {
     timestamps: true,

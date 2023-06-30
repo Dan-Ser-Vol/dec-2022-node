@@ -35,6 +35,7 @@ const config_1 = require("./configs/config");
 const crons_1 = require("./crons");
 const routers_1 = require("./routers");
 const swaggerJson = __importStar(require("./utils/swagger.json"));
+const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
@@ -44,6 +45,7 @@ app.use((0, cors_1.default)({
     optionsSuccessStatus: 204,
 }));
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use((0, express_fileupload_1.default)());
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
     max: 100,

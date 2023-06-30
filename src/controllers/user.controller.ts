@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
+import { UploadedFile } from "express-fileupload";
 
 import { ApiError } from "../errors";
+import { userMapper } from "../mappers/user.mapper";
 import { userService } from "../services/user.service";
 import { IUser } from "../types/user.type";
 import { UserValidator } from "../validators/user.validator";
@@ -48,6 +50,7 @@ class UserController {
       next(e);
     }
   }
+
   public async deleteById(
     req: Request,
     res: Response,
@@ -57,6 +60,37 @@ class UserController {
       const { userId } = req.params;
       await userService.deleteById(userId);
       return res.status(204).json({ message: "user deleted" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async uploadAvatar(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { userId } = req.params;
+      const avatar = req.files.avatar as UploadedFile;
+      const user = await userService.uploadAvatar(userId, avatar);
+      const response = userMapper.toResponse(user);
+      return res.status(201).json({ response, message: "avatar upload" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async deleteAvatar(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { userId } = req.params;
+      const user = await userService.deleteAvatar(userId);
+      const response = userMapper.toResponse(user);
+      return res.status(201).json({ response, message: "avatar was deleted" });
     } catch (e) {
       next(e);
     }
