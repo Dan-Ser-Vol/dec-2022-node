@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { UploadedFile } from "express-fileupload";
+import multer from "multer";
+import { createReadStream } from "streamifier";
 
 import { ApiError } from "../errors";
 import { userMapper } from "../mappers/user.mapper";
+import { s3Service } from "../services/s3.service";
 import { userService } from "../services/user.service";
 import { IUser } from "../types/user.type";
 import { UserValidator } from "../validators/user.validator";
@@ -93,6 +96,49 @@ class UserController {
       return res.status(201).json({ response, message: "avatar was deleted" });
     } catch (e) {
       next(e);
+    }
+  }
+
+  public async uploadVideo(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { userId } = req.params;
+
+    const upload = multer().single("");
+    upload(req, res, async (err) => {
+      if (err) {
+        throw new ApiError("Download error", 500);
+      }
+      const video = req.files.video as UploadedFile;
+      const stream = createReadStream(video.data);
+      const pathToVideo = await s3Service.uploadFileStream(
+        stream,
+        video.mimetype,
+        video.size,
+        video,
+        "video",
+        userId
+      );
+      await userService.uploadVideo(userId, pathToVideo, video.name);
+      return res
+        .status(201)
+        .json({ pathToVideo, message: "video was uploaded" });
+    });
+  }
+
+  public async findVideoById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response> {
+    try {
+      const { userId } = req.params;
+      const video = await userService.findVideoById(userId);
+      return res.status(200).json({ video });
+    } catch (err) {
+      next(err);
     }
   }
 }

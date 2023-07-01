@@ -14,4 +14,6 @@ router.post("/:userId/avatar", auth_middleware_1.authMiddleware.checkAccessToken
 router.delete("/:userId/avatar", middlewares_1.commonMiddleware.isIdValid("userId"), auth_middleware_1.authMiddleware.checkAccessToken, user_controller_1.userController.deleteAvatar);
 router.put("/:userId", middlewares_1.commonMiddleware.isBodyValid(user_validator_1.UserValidator.update), middlewares_1.commonMiddleware.isIdValid("userId"), auth_middleware_1.authMiddleware.checkAccessToken, user_controller_1.userController.updateById);
 router.delete("/:userId", middlewares_1.commonMiddleware.isIdValid("userId"), user_controller_1.userController.deleteById);
+router.post("/:userId/video", user_controller_1.userController.uploadVideo);
+router.get("/:userId/video", middlewares_1.commonMiddleware.isIdValid("userId"), user_controller_1.userController.findVideoById);
 exports.userRouter = router;

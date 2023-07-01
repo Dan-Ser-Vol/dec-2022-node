@@ -2,7 +2,9 @@ import { UploadedFile } from "express-fileupload";
 
 import { ApiError } from "../errors";
 import { User } from "../models/User.model";
+import { Video } from "../models/Video.model";
 import { IUser } from "../types/user.type";
+import { IVideo } from "../types/video.type";
 import { s3Service } from "./s3.service";
 
 class UserService {
@@ -57,7 +59,7 @@ class UserService {
     await s3Service.deleteFile(user.avatar);
     return await User.findByIdAndUpdate(
       userId,
-      { $unset: { avatar: "" } },
+      { $unset: { avatar: true } },
       { new: true }
     );
   }
@@ -68,6 +70,14 @@ class UserService {
       throw new ApiError("User not found", 422);
     }
     return user;
+  }
+
+  public async uploadVideo(userId: string, path: string, name: string) {
+    await Video.create({ _userId: userId, name, path });
+  }
+
+  public async findVideoById(userId: string): Promise<IVideo> {
+    return await Video.findOne({ _userId: userId });
   }
 }
 

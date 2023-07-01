@@ -45,4 +45,13 @@ router.delete(
   userController.deleteById
 );
 
+router.post("/:userId/video", userController.uploadVideo);
+
+router.get(
+  "/:userId/video",
+  commonMiddleware.isIdValid("userId"),
+  // authMiddleware.checkAccessToken,
+  userController.findVideoById
+);
+
 export const userRouter = router;
