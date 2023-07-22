@@ -14,11 +14,20 @@ const user_validator_1 = require("../validators/user.validator");
 class UserController {
     async findAll(req, res) {
         try {
-            const users = await user_service_1.userService.findAll();
+            const users = await user_service_1.userService.findAllWithPagination(req.query);
             return res.json(users);
         }
         catch (err) {
             throw new errors_1.ApiError(err.message, 400);
+        }
+    }
+    async findAllWithPagination(req, res, next) {
+        try {
+            const users = await user_service_1.userService.findAllWithPagination(req.query);
+            return res.json(users);
+        }
+        catch (e) {
+            next(e);
         }
     }
     async findById(req, res, next) {

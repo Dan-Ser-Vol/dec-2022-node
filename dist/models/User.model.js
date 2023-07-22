@@ -28,6 +28,7 @@ const userSchema = new mongoose_1.Schema({
     status: { type: String, default: user_status_enum_1.EUserStatus.Inactive, enum: user_status_enum_1.EUserStatus },
     activationToken: { type: String },
     avatar: { type: String, required: false },
+    phone: { type: String, required: false, trim: true },
     video: { type: String, required: false },
 }, {
     timestamps: true,

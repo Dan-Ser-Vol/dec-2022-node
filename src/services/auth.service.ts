@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 
 import { EActionTokenTypes } from "../enums/action-token-type.enum";
 import { EEmailActions } from "../enums/email.enum";
+import { ESmsActions } from "../enums/sms.enum";
 import { EUserStatus } from "../enums/user-status.enum";
 import { ApiError } from "../errors";
 import { Action } from "../models/ActionToken.model";
@@ -12,6 +13,7 @@ import { ICredentials, ITokenPair, ITokenPayload } from "../types/token.type";
 import { IUser } from "../types/user.type";
 import { emailService } from "./email.service";
 import { passwordService } from "./password.service";
+import { smsService } from "./sms.service";
 import { tokenService } from "./token.service";
 
 class AuthService {
@@ -33,6 +35,8 @@ class AuthService {
           name: data.name,
           actionToken,
         }),
+
+        smsService.sendSms(data.phone, ESmsActions.ACTIVATED),
       ]);
     } catch (err) {
       throw new ApiError(err.message, err.status);

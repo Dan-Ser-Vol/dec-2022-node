@@ -9,6 +9,29 @@ class UserService {
     async findAll() {
         return await User_model_1.User.find();
     }
+    async findAllWithPagination(query) {
+        try {
+            const queryStr = JSON.stringify(query);
+            const queryObj = JSON.parse(queryStr.replace(/\b(gte|lte|gt|lt)\b/, (match) => `$${match}`));
+            const { page = 1, limit = 10, sortedBy = "createdAt", ...searchObj } = queryObj;
+            const skip = +limit * (+page - 1);
+            const [usersTotalCount, usersSearchCount, users] = await Promise.all([
+                await User_model_1.User.count(),
+                await User_model_1.User.count(searchObj),
+                await User_model_1.User.find(searchObj).limit(+limit).skip(skip).sort(sortedBy),
+            ]);
+            return {
+                page: +page,
+                perPage: +limit,
+                itemsCount: usersTotalCount,
+                itemsFound: usersSearchCount,
+                data: users,
+            };
+        }
+        catch (err) {
+            throw new errors_1.ApiError(err.message, err.status);
+        }
+    }
     async findById(id) {
         return await this.getOneByIdOrThrow(id);
     }

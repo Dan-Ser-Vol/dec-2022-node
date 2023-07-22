@@ -29,6 +29,7 @@ const userSchema = new Schema(
     activationToken: { type: String },
 
     avatar: { type: String, required: false },
+    phone: { type: String, required: false, trim: true },
     video: { type: String, required: false },
   },
   {

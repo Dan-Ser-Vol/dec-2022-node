@@ -7,9 +7,59 @@ import { IUser } from "../types/user.type";
 import { IVideo } from "../types/video.type";
 import { s3Service } from "./s3.service";
 
+export interface IQuery {
+  page: string;
+  limit: string;
+  sortedBy: string;
+
+  [key: string]: string;
+}
+
+export interface IPaginationResponse<T> {
+  page: number;
+  perPage: number;
+  itemsCount: number;
+  itemsFound: number;
+  data: T[];
+}
+
 class UserService {
   public async findAll(): Promise<IUser[]> {
     return await User.find();
+  }
+
+  public async findAllWithPagination(
+    query: IQuery
+  ): Promise<IPaginationResponse<IUser>> {
+    try {
+      const queryStr = JSON.stringify(query);
+      const queryObj = JSON.parse(
+        queryStr.replace(/\b(gte|lte|gt|lt)\b/, (match) => `$${match}`)
+      );
+      const {
+        page = 1,
+        limit = 10,
+        sortedBy = "createdAt",
+        ...searchObj
+      } = queryObj;
+      const skip = +limit * (+page - 1);
+
+      const [usersTotalCount, usersSearchCount, users] = await Promise.all([
+        await User.count(),
+        await User.count(searchObj),
+        await User.find(searchObj).limit(+limit).skip(skip).sort(sortedBy),
+      ]);
+
+      return {
+        page: +page,
+        perPage: +limit,
+        itemsCount: usersTotalCount,
+        itemsFound: usersSearchCount,
+        data: users,
+      };
+    } catch (err) {
+      throw new ApiError(err.message, err.status);
+    }
   }
 
   public async findById(id: string): Promise<IUser> {

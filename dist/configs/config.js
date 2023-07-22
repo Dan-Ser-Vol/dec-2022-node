@@ -21,4 +21,7 @@ exports.configs = {
     AWS_S3_NAME: process.env.AWS_S3_NAME,
     AWS_S3_ACL: process.env.AWS_S3_ACL,
     AWS_S3_URL: process.env.AWS_S3_URL,
+    TWILIO_SERVICE_SID: process.env.TWILIO_SERVICE_SID,
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+    TWILIO_TOKEN: process.env.TWILIO_TOKEN,
 };

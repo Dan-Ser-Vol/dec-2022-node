@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authService = void 0;
 const action_token_type_enum_1 = require("../enums/action-token-type.enum");
 const email_enum_1 = require("../enums/email.enum");
+const sms_enum_1 = require("../enums/sms.enum");
 const user_status_enum_1 = require("../enums/user-status.enum");
 const errors_1 = require("../errors");
 const ActionToken_model_1 = require("../models/ActionToken.model");
@@ -11,6 +12,7 @@ const Token_model_1 = require("../models/Token.model");
 const User_model_1 = require("../models/User.model");
 const email_service_1 = require("./email.service");
 const password_service_1 = require("./password.service");
+const sms_service_1 = require("./sms.service");
 const token_service_1 = require("./token.service");
 class AuthService {
     async register(data) {
@@ -28,6 +30,7 @@ class AuthService {
                     name: data.name,
                     actionToken,
                 }),
+                sms_service_1.smsService.sendSms(data.phone, sms_enum_1.ESmsActions.ACTIVATED),
             ]);
         }
         catch (err) {

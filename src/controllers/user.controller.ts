@@ -6,7 +6,7 @@ import { createReadStream } from "streamifier";
 import { ApiError } from "../errors";
 import { userMapper } from "../mappers/user.mapper";
 import { s3Service } from "../services/s3.service";
-import { userService } from "../services/user.service";
+import { IQuery, userService } from "../services/user.service";
 import { IUser } from "../types/user.type";
 import { UserValidator } from "../validators/user.validator";
 
@@ -16,10 +16,28 @@ class UserController {
     res: Response
   ): Promise<Response<IUser[]>> {
     try {
-      const users = await userService.findAll();
+      // const users = await userService.findAll();
+      const users = await userService.findAllWithPagination(
+        req.query as unknown as IQuery
+      );
       return res.json(users);
     } catch (err) {
       throw new ApiError(err.message, 400);
+    }
+  }
+
+  public async findAllWithPagination(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser[]>> {
+    try {
+      const users = await userService.findAllWithPagination(
+        req.query as unknown as IQuery
+      );
+      return res.json(users);
+    } catch (e) {
+      next(e);
     }
   }
 
