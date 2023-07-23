@@ -5,13 +5,13 @@ import rateLimit from "express-rate-limit";
 import * as http from "http";
 import * as mongoose from "mongoose";
 import { Server, Socket } from "socket.io";
-import * as swaggerUi from "swagger-ui-express";
+// import * as swaggerUi from "swagger-ui-express";
 
 import { configs } from "./configs/config";
 import { cronRunner } from "./crons";
 import { ApiError } from "./errors";
 import { authRouter, userRouter } from "./routers";
-import * as swaggerJson from "./utils/swagger.json";
+// import * as swaggerJson from "./utils/swagger.json";
 
 const app = express();
 const server = http.createServer(app);
@@ -57,7 +57,7 @@ const limiter = rateLimit({
 app.use("*", limiter);
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
-app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerJson));
+// app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerJson));
 
 app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
   const status = err.status || 500;
