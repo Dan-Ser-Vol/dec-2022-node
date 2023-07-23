@@ -19,7 +19,6 @@ app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
 
 const dbConnect = async () => {
     let dbCon = false
-
     while (!dbCon) {
         try {
             console.log(`Connecting to database ${configs.DB_URL}`);
