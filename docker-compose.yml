@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+        - "5555:$PORT"
+    volumes:
+      - ./dist:/app
+      - /app/node_modules
+    restart: on-failure
+    command: sh -c "node --watch app.js"
+
+  db:
+    image: mongo
+    env_file:
+      - .env
+    ports:
+          - "27018:27017"
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./mongo_db:/data/db
+    restart: on-failure
+
